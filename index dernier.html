@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atelier 47</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Courier+Prime&family=Jost:wght@400;500;600&display=swap">
+<style>
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+/* Layout: carte de saison imprimée — colonne centrée sur papier ivoire, branches d'eucalyptus aquarelle aux coins, noms de plats dorés en capitales */
+:root{
+  --paper:#fdfcf7; --card:#ffffff; --ink:#2b2b28; --muted:#6c6a62; --line:#e6e1d3;
+  --gold:#a8822c; --gold-soft:#f4ecd8; --sage:#6f8668; --sage-soft:#e9efe6; --onaccent:#ffffff;
+  --display:"Cormorant Garamond","Garamond","Times New Roman",serif;
+  --label:"Jost","Futura","Century Gothic",system-ui,sans-serif;
+  --text:"Courier Prime","Courier New",monospace;
+  color-scheme:light;
+}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--text);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+
+.page{position:relative;overflow:hidden}
+.leaves{position:absolute;pointer-events:none;width:300px;height:300px;max-width:44vw;max-height:44vw}
+.leaves.tl{top:0;left:0}
+.leaves.br{bottom:70px;right:0;transform:rotate(180deg)}
+.wrap{position:relative;max-width:620px;margin:0 auto;padding-inline:20px;padding-block:72px 48px;display:grid;gap:44px;text-align:center}
+
+header{display:grid;gap:10px;justify-items:center}
+h1{font-family:var(--display);font-weight:300;font-size:clamp(2.6rem,10vw,3.8rem);letter-spacing:.14em;line-height:1;margin:0;padding-left:.14em}
+.sub{font-family:var(--display);font-style:italic;font-size:1.15rem;color:var(--muted);margin:0}
+.rule{display:flex;align-items:center;gap:12px;color:var(--gold);font-size:.7rem}
+.rule::before,.rule::after{content:"";width:48px;height:1px;background:var(--gold);opacity:.6}
+.table-pill{font-family:var(--label);font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);border:1px solid var(--gold);padding:5px 14px}
+
+h2{font-family:var(--display);font-weight:300;font-size:clamp(1.55rem,7vw,2.1rem);letter-spacing:.12em;text-transform:uppercase;margin:0;padding-left:.12em}
+h3{font-family:var(--label);font-weight:600;font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;margin:0;padding-left:.2em}
+.price-line{font-family:var(--display);font-style:italic;font-size:1.15rem;margin:0;color:var(--ink)}
+
+.season{border:1px solid var(--gold);padding:32px 22px 26px;display:grid;gap:22px;position:relative;background:var(--card)}
+.season::before{content:"";position:absolute;inset:5px;border:1px solid var(--gold);opacity:.35;pointer-events:none}
+.course{display:grid;gap:10px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--paper);padding:12px 10px;display:grid;gap:4px;color:var(--ink);text-align:center;min-width:0}
+.choice b{font-family:var(--label);font-weight:600;font-size:.8rem;letter-spacing:.14em;color:var(--gold)}
+.choice span{font-size:.78rem;color:var(--muted);line-height:1.4}
+.choice[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft)}
+
+.section{display:grid;gap:26px}
+.dishes{list-style:none;margin:0;padding:0;display:grid;gap:26px}
+.dish{display:grid;gap:4px;justify-items:center}
+.dish .name{font-family:var(--label);font-weight:600;font-size:.88rem;letter-spacing:.16em;color:var(--gold);text-transform:uppercase}
+.dish .desc{max-width:46ch;margin:0;font-size:.88rem}
+.dish .foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 12px;margin-top:6px;font-family:var(--label);font-size:.78rem;color:var(--muted)}
+.dish .prix{font-family:var(--display);font-size:1.15rem;color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.tag{font-family:var(--label);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:2px 8px;border:1px solid var(--line)}
+.tag.fast{border-color:var(--sage);color:var(--sage)}
+.ou{font-family:var(--label);font-weight:600;font-size:.72rem;letter-spacing:.2em;color:var(--ink)}
+.add{font-family:var(--label);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--ink);padding:6px 12px}
+.add:hover{background:var(--ink);color:var(--paper)}
+.qty{display:inline-flex;align-items:center;gap:10px}
+.qty .n{font-family:var(--label);font-weight:600;color:var(--ink);min-width:1ch}
+.qty button{width:28px;height:28px;padding:0;font:500 1rem/1 var(--label);cursor:pointer;border:1px solid var(--gold);background:var(--paper);color:var(--gold)}
+.qty button.plus{background:var(--gold);color:var(--onaccent)}
+
+.affaires{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:18px;display:grid;gap:6px}
+.affaires p{margin:0;font-size:.88rem}
+.note{font-family:var(--display);font-style:italic;color:var(--muted);font-size:1rem;margin:0}
+footer{font-family:var(--label);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:grid;gap:4px}
+
+.cta{font-family:var(--label);font-weight:500;font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:14px 20px}
+.cta.gold{background:var(--gold);border-color:var(--gold);color:var(--onaccent)}
+.cta.ghost{background:transparent;color:var(--ink)}
+.cta:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+.bar{position:sticky;bottom:0;z-index:5;background:var(--paper);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;justify-content:center}
+.bar .cta{flex:1;max-width:420px;padding-inline:8px}
+
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(30,30,26,.5);display:flex;align-items:flex-end;justify-content:center}
+.panel{position:relative;width:100%;max-width:620px;max-height:92%;overflow-y:auto;background:var(--paper);padding:30px 20px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:18px;border-top:3px double var(--gold)}
+.panel h2{font-size:1.8rem;text-align:center}
+.close{position:absolute;top:10px;right:12px;background:none;border:0;font:1.2rem var(--label);color:var(--muted);cursor:pointer;padding:6px}
+.lines{border-top:1px solid var(--line)}
+.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.88rem;text-align:left}
+.line span:last-child{font-family:var(--display);font-size:1.1rem;white-space:nowrap}
+.tot{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--label);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem}
+.tot span:last-child{font-family:var(--display);font-size:1.5rem;letter-spacing:0;font-weight:500}
+.eta{background:var(--sage-soft);color:var(--sage);padding:10px 12px;font-size:.85rem;text-align:center}
+.lbl{font-family:var(--label);font-weight:500;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px;color:var(--muted)}
+label{display:grid;gap:6px;font-family:var(--label);font-weight:500;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);min-width:0}
+input,select{font:inherit;font-family:var(--text);font-size:.95rem;letter-spacing:0;text-transform:none;color:var(--ink);background:var(--card);border:1px solid var(--line);padding:10px;width:100%;border-radius:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opts{display:flex;gap:10px;flex-wrap:wrap}
+.opt{flex:1;min-width:130px;font:inherit;font-family:var(--label);font-size:.8rem;letter-spacing:.06em;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:12px;text-align:left;display:flex;gap:12px;align-items:center}
+.opt[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-soft)}
+.opt small{display:block;color:var(--muted);font-family:var(--text);font-size:.75rem;letter-spacing:0}
+.ico{flex:none;width:40px;height:28px;display:grid;place-items:center;font-family:var(--label);font-weight:600;font-size:.7rem;color:var(--onaccent);background:var(--ink)}
+.ico.g{background:var(--gold)} .ico.s{background:var(--sage)}
+.methods{display:grid;gap:8px}
+.check{display:flex;gap:10px;align-items:flex-start;text-transform:none;letter-spacing:0;font-family:var(--text);font-size:.88rem;color:var(--ink)}
+.check input{width:auto;margin-top:4px}
+.conf{border:1px solid var(--gold);padding:22px 16px;text-align:center;display:grid;gap:8px;font-size:.9rem}
+.conf strong{font-family:var(--display);font-weight:400;font-size:1.6rem;color:var(--gold)}
+.conf small{color:var(--muted)}
+.ticket{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:16px;display:grid;gap:12px}
+.opt.tk{justify-content:center;text-align:center}
+.tkform{display:grid;gap:10px;text-align:left}
+.err{font-size:.8rem;color:#9a3b2e}
+.tkdone{color:var(--sage);font-weight:700}
+.demo{margin:0;font-size:.75rem;color:var(--muted);text-align:center}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-1px;margin-right:8px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (max-width:440px){.wrap{padding-top:120px}h1{letter-spacing:.1em}.row{grid-template-columns:1fr}.choices{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="page">
+<canvas class="leaves tl" id="leafTL" aria-hidden="true"></canvas>
+<canvas class="leaves br" id="leafBR" aria-hidden="true"></canvas>
+<main class="wrap">
+  <header>
+    <h1>ATELIER 47</h1>
+    <p class="sub">Cuisine de saison · produits du marché</p>
+    <div class="rule">✦</div>
+    <span id="tablePill" class="table-pill" hidden></span>
+  </header>
+
+  <section class="season" aria-labelledby="t-jour">
+    <div>
+      <h2 id="t-jour">Plat du jour</h2>
+      <p class="price-line">Selon l'arrivage du matin</p>
+    </div>
+    <ul class="dishes" id="jour"></ul>
+  </section>
+
+  <section class="affaires" aria-label="Déjeuner affaires">
+    <h3>Déjeuner affaires</h3>
+    <p>Du mardi au vendredi midi, servi en 45 minutes. Choisissez le plat du jour ou les plats marqués <span class="tag fast">Express</span></p>
+  </section>
+
+  <section class="section" aria-labelledby="t-carte">
+    <h2 id="t-carte">À la carte</h2>
+    <div class="section"><h3>Entrées</h3><ul class="dishes" id="entrees"></ul></div>
+    <div class="rule">✦</div>
+    <div class="section"><h3>Plats</h3><ul class="dishes" id="plats"></ul></div>
+    <div class="rule">✦</div>
+    <div class="section"><h3>Desserts</h3><ul class="dishes" id="desserts"></ul></div>
+  </section>
+
+  <p class="note">Temps indiqués entre la commande et l'arrivée à table. Carte renouvelée à chaque saison.</p>
+  <footer><span>Atelier 47</span><span>Du mardi au samedi · 12h–14h · 19h30–22h</span></footer>
+</main>
+</div>
+
+<div class="bar">
+  <button class="cta" type="button" id="openCart" disabled>Ma commande</button>
+</div>
+
+<div id="cartSheet" class="sheet" hidden><section class="panel" role="dialog" aria-modal="true" aria-labelledby="t-cart">
+  <button class="close" type="button" data-close aria-label="Fermer">✕</button>
+  <h2 id="t-cart">Ma commande</h2>
+  <div id="cartBody" style="display:grid;gap:18px">
+    <div class="lines" id="lines"></div>
+    <div class="tot"><span>Total</span><span id="total"></span></div>
+    <div class="eta" id="eta"></div>
+    <label for="table">Table<select id="table"></select></label>
+    <div><div class="lbl">Règlement</div>
+      <div class="opts" id="payWhere">
+        <button type="button" class="opt" data-v="table" aria-pressed="true">Sur mon téléphone</button>
+        <button type="button" class="opt" data-v="comptoir" aria-pressed="false">Au comptoir</button>
+      </div></div>
+    <button class="cta" type="button" id="sendOrder">Envoyer en cuisine</button>
+  </div>
+  <div id="payStep" style="display:grid;gap:18px" hidden>
+    <div class="tot"><span>À régler</span><span id="payTotal"></span></div>
+    <div><div class="lbl">Pourboire pour la brigade</div>
+      <div class="opts" id="tips">
+        <button type="button" class="opt" data-tip="0" aria-pressed="true">Non merci</button>
+        <button type="button" class="opt" data-tip="2" aria-pressed="false">2 €</button>
+        <button type="button" class="opt" data-tip="5" aria-pressed="false">5 €</button>
+      </div></div>
+    <div><div class="lbl">Moyen de paiement</div>
+      <div class="methods" id="methods">
+        <button type="button" class="opt" data-m="cb" aria-pressed="true"><span class="ico">CB</span><span>Carte bancaire<small>Visa •••• 4242 · carte de démo</small></span></button>
+        <button type="button" class="opt" data-m="wallet" aria-pressed="false"><span class="ico g">PAY</span><span>Paiement mobile<small>Apple Pay / Google Pay</small></span></button>
+        <button type="button" class="opt" data-m="tr" aria-pressed="false"><span class="ico s">TR</span><span>Titre-restaurant<small>Swile, Edenred, Up…</small></span></button>
+      </div></div>
+    <button class="cta gold" type="button" id="payBtn"></button>
+    <p class="demo">Démo de projet : aucun paiement réel, aucune donnée bancaire demandée.</p>
+  </div>
+  <div id="orderConf" class="conf" hidden></div>
+</section></div>
+
+<script>
+/* ---------- Carte ---------- */
+const CARTE={
+  jour:[
+    {id:'j1',n:'Le Cabillaud',d:"Dos de cabillaud nacré, purée de céleri, beurre blanc aux herbes du jardin",p:26,t:12,x:true}],
+  entrees:[
+    {id:'e1',n:'La Tomate',d:"Gelée de tomates, déclinaison de tomate cœur de bœuf, ananas et cornue des Andes, thon rouge mi-cuit, vinaigrette à la verveine, sorbet à la tomate",p:21,t:8,x:true,m:1},
+    {id:'e2',n:'Le Bœuf',d:"Langue de bœuf en mille-feuille à l'ail noir, mayonnaise de petits pois et menthe, déclinaison de légumes d'été",p:19,t:8,x:true,m:1},
+    {id:'e3',n:'La Saint-Jacques',d:"Noix de Saint-Jacques crues, agrumes, radis noir, beurre blanc au yuzu",p:24,t:10},
+    {id:'e4',n:'Le Cèpe',d:"Velouté de cèpes, œuf parfait cuit à 64 °C, noisettes torréfiées, huile de persil",p:18,t:8,x:true},
+    {id:'e5',n:'Le Céleri',d:"Céleri rôti en croûte de sel, condiment pomme verte, jus truffé · végétarien",p:17,t:10}],
+  plats:[
+    {id:'p1',n:'Le Maigre',d:"Filet de maigre, crémeux de haricots verts, tomates et palourdes, beurre noisette",p:34,t:15,x:true,m:1},
+    {id:'p2',n:'La Volaille',d:"Volaille du Périgord cuite à basse température, artichauts poivrade, oignons nouveaux, jus à la noisette",p:32,t:15,x:true,m:1},
+    {id:'p3',n:'Le Bar',d:"Bar de ligne rôti sur peau, fenouil confit, bouillon safrané façon bouillabaisse",p:38,t:18},
+    {id:'p4',n:'Le Turbot',d:"Tronçon de turbot, poireaux brûlés, coquillages, sauce champagne",p:42,t:20},
+    {id:'p5',n:'Le Homard',d:"Demi-homard bleu, risotto de petit épeautre, bisque montée au beurre",p:46,t:20},
+    {id:'p6',n:'Le Veau',d:"Quasi de veau rosé, carottes fanes glacées, jus corsé au thym",p:36,t:15,x:true},
+    {id:'p7',n:"L'Agneau",d:"Carré d'agneau en croûte d'herbes, aubergine fumée, jus à l'ail confit",p:39,t:18},
+    {id:'p8',n:'Le Pigeon',d:"Pigeon rôti sur coffre, cuisse confite, betterave et cerise, jus au cacao",p:41,t:20},
+    {id:'p9',n:'Le Chevreuil',d:"Noisette de chevreuil, céleri-rave, airelles, sauce grand veneur",p:44,t:20},
+    {id:'p10',n:'La Courge',d:"Courge butternut rôtie, quinoa croustillant, sauge, beurre noisette · végétarien",p:28,t:12,x:true}],
+  desserts:[
+    {id:'d1',n:'Le Café',d:"Biscuit génoise spéculoos, gelée Baileys, crème mascarpone, crème glacée café",p:14,t:5,x:true,m:1},
+    {id:'d2',n:'Le Citron',d:"Crème citron, biscuit génoise, curry, sorbet yuzu",p:14,t:5,x:true,m:1},
+    {id:'d3',n:'Le Chocolat',d:"Grand cru 70 %, praliné noisette, tuile cacao, glace vanille de Madagascar",p:15,t:6,x:true},
+    {id:'d4',n:'La Poire',d:"Poire pochée au vin épicé, sablé breton, crème légère à la fève tonka",p:13,t:5,x:true},
+    {id:'d5',n:'Le Soufflé',d:"Soufflé chaud au Grand Marnier, sorbet orange sanguine",p:16,t:15}]
+};
+const CAT={jour:'p',entrees:'e',plats:'p',desserts:'d'};
+const ITEMS={};
+for(const [k,list] of Object.entries(CARTE))list.forEach(i=>ITEMS[i.id]={...i,cat:CAT[k]});
+const cart={};
+const eur=v=>v.toLocaleString('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:v%1?2:0});
+
+function renderCarte(){
+  for(const [k,list] of Object.entries(CARTE)){
+    document.getElementById(k).innerHTML=list.map(i=>{
+      const q=cart[i.id]||0;
+      const ctl=q?`<span class="qty"><button type="button" data-rm="${i.id}" aria-label="Retirer ${i.n}">−</button><span class="n">${q}</span><button type="button" class="plus" data-add="${i.id}" aria-label="Ajouter ${i.n}">+</button></span>`
+                 :`<button type="button" class="add" data-add="${i.id}">Ajouter</button>`;
+      return `<li class="dish"><span class="name">${i.n}</span><p class="desc">${i.d}</p>
+        <div class="foot"><span class="prix">${eur(i.p)}</span><span>~${i.t} min</span>${i.x?'<span class="tag fast">Express</span>':''}${ctl}</div></li>`;
+    }).join('');
+  }
+  const n=Object.values(cart).reduce((a,b)=>a+b,0), tot=cartTotal();
+  const b=document.getElementById('openCart');
+  b.disabled=!n; b.textContent=n?`Ma commande · ${eur(tot)}`:'Ma commande';
+  renderCart();
+}
+function cartTotal(){return Object.entries(cart).reduce((a,[id,q])=>a+ITEMS[id].p*q,0);}
+function cartEta(){
+  const ids=Object.keys(cart); if(!ids.length)return 0;
+  const mains=ids.filter(id=>ITEMS[id].cat==='p'||ITEMS[id].cat==='m');
+  return Math.max(...(mains.length?mains:ids).map(id=>ITEMS[id].t));
+}
+function renderCart(){
+  document.getElementById('lines').innerHTML=Object.entries(cart).map(([id,q])=>
+    `<div class="line"><span>${q} × ${ITEMS[id].n}</span><span>${eur(ITEMS[id].p*q)}</span></div>`).join('');
+  document.getElementById('total').textContent=eur(cartTotal());
+  document.getElementById('eta').textContent=`Arrivée prévue ~${cartEta()} min après l'envoi en cuisine`;
+}
+document.querySelector('main').addEventListener('click',e=>{
+  const a=e.target.closest('[data-add]'),r=e.target.closest('[data-rm]');
+  if(a){cart[a.dataset.add]=(cart[a.dataset.add]||0)+1;renderCarte();}
+  if(r){const id=r.dataset.rm;if(--cart[id]<=0)delete cart[id];renderCarte();}
+});
+
+/* ---------- Table (QR : lien ...#table12) ---------- */
+const tSel=document.getElementById('table');
+for(let i=1;i<=15;i++)tSel.insertAdjacentHTML('beforeend',`<option value="${i}">Table ${i}</option>`);
+const hm=(location.hash||'').match(/table(\d+)/i);
+if(hm){tSel.value=hm[1];const p=document.getElementById('tablePill');p.textContent='Table '+hm[1];p.hidden=false;}
+
+/* ---------- Fenêtres ---------- */
+const $=id=>document.getElementById(id);
+function openSheet(id){$(id).hidden=false;document.body.classList.add('lock');}
+function closeAll(){
+  document.querySelectorAll('.sheet').forEach(s=>s.hidden=true);document.body.classList.remove('lock');
+  $('orderConf').hidden=true;$('payStep').hidden=true;$('cartBody').hidden=false;$('t-cart').textContent='Ma commande';
+}
+$('openCart').onclick=()=>openSheet('cartSheet');
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeAll);
+document.querySelectorAll('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)closeAll();}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll();});
+function toggleGroup(box,attr,cb){box.onclick=e=>{const b=e.target.closest(`[${attr}]`);if(!b)return;
+  box.querySelectorAll(`[${attr}]`).forEach(x=>x.setAttribute('aria-pressed',x===b));cb(b.getAttribute(attr));};}
+
+/* ---------- Commande + paiement (démo) ---------- */
+let payWhere='table',tip=0,method='cb',order=null;
+const METHOD={cb:'carte bancaire',wallet:'paiement mobile',tr:'titre-restaurant'};
+toggleGroup($('payWhere'),'data-v',v=>payWhere=v);
+toggleGroup($('tips'),'data-tip',v=>{tip=Number(v);setPay();});
+toggleGroup($('methods'),'data-m',v=>method=v);
+function setPay(){const b=$('payBtn');b.disabled=false;b.textContent='Payer '+eur(order.total+tip);$('payTotal').textContent=eur(order.total+tip);}
+function confirmOrder(paid){
+  const c=$('orderConf');
+  c.innerHTML=`<strong>${paid?'Paiement accepté':'Commande transmise'}</strong>
+    ${paid?`<span>${eur(order.total+tip)} réglés par ${METHOD[method]}${tip?`, dont ${eur(tip)} pour la brigade. Merci !`:'.'}</span>`:''}
+    <span>Table ${order.table} · votre plat arrive dans ~${order.eta} min.</span>
+    <span>${paid?"Vous pouvez partir quand vous le souhaitez, sans attendre l'addition.":"Réglez au comptoir en partant, sans attendre l'addition."}</span>
+    ${paid?`<div class="ticket" id="ticket">
+      <div class="lbl">Recevoir votre ticket de caisse par e-mail ?</div>
+      <div class="opts" id="ticketAsk">
+        <button type="button" class="opt tk" data-tk="oui">Oui</button>
+        <button type="button" class="opt tk" data-tk="non">Non merci</button>
+      </div>
+      <form id="ticketForm" class="tkform" novalidate hidden>
+        <label for="tkMail">Adresse e-mail<input id="tkMail" type="email" placeholder="camille.berthier@mail.fr" autocomplete="email"></label>
+        <span class="err" id="tkErr" hidden>Saisissez une adresse e-mail valide, par exemple nom@mail.fr</span>
+        <button class="cta gold" type="submit">Envoyer le ticket</button>
+      </form>
+      <span id="tkDone" class="tkdone" hidden></span>
+    </div>`:''}
+    <small>Démo de projet : aucune commande, aucun paiement ni e-mail réels.</small>
+    <div><button class="cta" type="button" id="again">Nouvelle commande</button></div>`;
+  c.hidden=false;$('payStep').hidden=true;$('cartBody').hidden=true;$('t-cart').textContent=paid?'Merci':'Ma commande';
+  for(const k in cart)delete cart[k];renderCarte();
+  $('again').onclick=closeAll;
+  if(!paid)return;
+  $('ticketAsk').onclick=e=>{const b=e.target.closest('[data-tk]');if(!b)return;
+    $('ticketAsk').hidden=true;
+    if(b.dataset.tk==='oui'){$('ticketForm').hidden=false;$('tkMail').focus();}
+    else{$('tkDone').textContent='Pas de ticket envoyé. Bonne fin de repas !';$('tkDone').hidden=false;}};
+  $('ticketForm').onsubmit=e=>{e.preventDefault();
+    const m=$('tkMail').value.trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m)){$('tkErr').hidden=false;return;}
+    $('ticketForm').hidden=true;
+    $('tkDone').textContent='Ticket envoyé à '+m.replace(/[<>&]/g,'')+' ✓';$('tkDone').hidden=false;};
+}
+$('sendOrder').onclick=()=>{
+  order={total:cartTotal(),table:tSel.value,eta:cartEta()};
+  if(payWhere==='comptoir'){confirmOrder(false);return;}
+  tip=0;$('tips').querySelectorAll('[data-tip]').forEach((x,i)=>x.setAttribute('aria-pressed',i===0));
+  $('cartBody').hidden=true;$('payStep').hidden=false;$('t-cart').textContent='Règlement';setPay();
+};
+$('payBtn').onclick=()=>{const b=$('payBtn');b.disabled=true;b.innerHTML='<span class="spin"></span>Paiement en cours';setTimeout(()=>confirmOrder(true),1400);};
+
+/* ---------- Branches d'eucalyptus aquarelle ---------- */
+function drawLeaves(cv,seed){
+  const S=300,dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=S*dpr;cv.height=S*dpr;const g=cv.getContext('2d');g.scale(dpr,dpr);
+  let s=seed;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
+  const greens=['111,134,104','143,164,138','98,120,96','168,186,160','125,146,128'];
+  function leaf(x,y,ang,len,wid){
+    g.save();g.translate(x,y);g.rotate(ang);
+    const col=greens[Math.floor(rnd()*greens.length)];
+    for(let k=0;k<2;k++){
+      const grd=g.createLinearGradient(0,0,len,0);
+      grd.addColorStop(0,`rgba(${col},${.55-k*.2})`);grd.addColorStop(1,`rgba(${col},${.25-k*.1})`);
+      g.fillStyle=grd;g.beginPath();g.moveTo(0,0);
+      const w=wid*(1+k*.12);
+      g.bezierCurveTo(len*.3,-w,len*.75,-w*.9,len,0);g.bezierCurveTo(len*.75,w*.7,len*.3,w*.8,0,0);g.fill();
+    }
+    g.strokeStyle=`rgba(${col},.45)`;g.lineWidth=.6;g.beginPath();g.moveTo(0,0);g.lineTo(len*.9,0);g.stroke();
+    g.restore();
+  }
+  function branch(x,y,ang,len,n){
+    g.strokeStyle='rgba(120,128,104,.55)';g.lineWidth=1.1;g.lineCap='round';
+    const pts=[];let cx=x,cy=y,a=ang;const step=len/n;
+    g.beginPath();g.moveTo(cx,cy);
+    for(let i=0;i<n;i++){a+=(rnd()-.5)*.12;cx+=Math.cos(a)*step;cy+=Math.sin(a)*step;g.lineTo(cx,cy);pts.push([cx,cy,a]);}
+    g.stroke();
+    pts.forEach(([px,py,pa],i)=>{
+      const f=1-i/n*.55, side=i%2?1:-1;
+      leaf(px,py,pa+side*(.7+rnd()*.35),(26+rnd()*14)*f,(9+rnd()*4)*f);
+    });
+    const [ex,ey,ea]=pts[pts.length-1];leaf(ex,ey,ea,18,7);
+  }
+  branch(-10,40,.35,250,11);
+  branch(10,-10,1.05,220,10);
+  branch(-20,120,.12,170,8);
+  branch(60,-20,1.35,150,7);
+  g.fillStyle='rgba(168,130,44,.75)';
+  [[200,70,5],[150,150,3.5],[240,160,3],[110,230,4]].forEach(([x,y,r])=>{
+    g.beginPath();g.moveTo(x,y-r*2);g.quadraticCurveTo(x,y,x+r*2,y);g.quadraticCurveTo(x,y,x,y+r*2);
+    g.quadraticCurveTo(x,y,x-r*2,y);g.quadraticCurveTo(x,y,x,y-r*2);g.fill();
+  });
+}
+drawLeaves($('leafTL'),4711);drawLeaves($('leafBR'),1234);
+
+renderCarte();
+</script>
+
+</body>
+</html>
